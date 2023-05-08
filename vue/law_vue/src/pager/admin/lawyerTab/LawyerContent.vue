@@ -14,7 +14,7 @@
       <el-form ref="form" :model="form" :rules="rules" label-position="right"
                label-width="100px">
 
-        <el-form-item label=""  prop="imageUrl">
+        <el-form-item label="" prop="imageUrl">
           <el-upload
               class="avatar-uploader"
               action="http://localhost:8082/register/upload"
@@ -128,7 +128,7 @@
       <el-form ref="form" :model="form" :rules="rules" label-position="right"
                label-width="100px">
 
-        <el-form-item label=""  prop="imageUrl">
+        <el-form-item label="" prop="imageUrl">
           <el-upload
               class="avatar-uploader"
               action="http://localhost:8082/register/upload"
@@ -300,7 +300,7 @@ export default {
         area: '',
         feeRate: '',
         rating: '',
-        imgUrl:""
+        imgUrl: ""
       }
       ],
       imageUrl: '',
@@ -315,16 +315,17 @@ export default {
         lawFirm: '',
         feeRate: '',
         working: '',
-        imgUrl:"",
-        rating: ''
+        imgUrl: "",
+        rating: '',
+        status: 0
       },
       formLabelWidth: '120px',
       rules: {//校验规则
         phone: [{pattern: /^1[3456789]\d{9}$/, required: true, message: '请检查格式', trigger: 'blur'}],
-        name: [{max: 8, required: true, message: '需要汉字哦~', trigger: 'blur'}],
+        name: [{max: 8, required: true, message: '最大长度为8！', trigger: 'blur'}],
         area: [{required: true, message: '擅长领域为必填项', trigger: 'blur'}],
-        password: [{min: 6, max: 12, required: true, message: '密码为必填项,最短长度为6，最长为12奥~', trigger: 'blur'}],
-        rating: [{pattern: /^[0-9]$/, required: true, message: '必填项，最大为9', trigger: 'blur'}],
+        password: [{min: 6, max: 12, required: true, message: '密码为必填项,最短长度为6，最长为12！', trigger: 'blur'}],
+        rating: [{pattern: /^[0-9]$/, max: 1, required: true, message: '必填项，最大为9', trigger: 'blur'}],
         feeRate: [{pattern: /^\d+\.?\d{0,2}$/, required: true, message: '收费标准为必填项', trigger: 'blur'}]
       },
     }
@@ -350,7 +351,8 @@ export default {
       if (!this.checkForm()) {
         this.$message.error('请完善表单相关信息！');
       } else {
-        this.form.imgUrl=this.imageUrl
+        this.form.status = 0
+        this.form.imgUrl = this.imageUrl
         axios.post("/register/lawyer", this.form).then(res => {
           if (res.data.code === 1) {
             this.$message.success("注册成功！");
@@ -360,7 +362,7 @@ export default {
           }
         }).finally(() => {
           this.getAll()
-          this.form.imgUrl=""
+          this.form.imgUrl = ""
         });
       }
     },
@@ -370,7 +372,7 @@ export default {
       axios.get("/select/byId/lawyer?id=" + row.id).then(((res) => {
         if (res.data.code === 1) {
           //修改第一个调用的先是查询
-          this.imageUrl=row.imgUrl
+          this.imageUrl = row.imgUrl
           this.form = res.data.data
         } else {
           this.$message.error(res.data.msg)
@@ -381,7 +383,7 @@ export default {
       if (!this.checkForm()) {
         this.$message.error('请完善表单相关信息！');
       } else {
-        this.form.imgUrl=this.imageUrl
+        this.form.imgUrl = this.imageUrl
         axios.put("/update/lawyer", this.form).then(res => {
           if (res.data.code == 1) {
             this.$message.success("修改成功！");
@@ -390,7 +392,7 @@ export default {
           }
         }).finally(() => {
           this.alterAdmin = false
-          this.form.imgUrl=""
+          this.form.imgUrl = ""
         });
       }
     },
@@ -427,9 +429,9 @@ export default {
     },
     //图片回显
     handleAvatarSuccess(res) {
-      this.imageUrl="http://localhost:8082/image/"+res.data
+      this.imageUrl = "http://localhost:8082/image/" + res.data
       console.log(this.imageUrl)
-      sessionStorage.setItem("imgUrl",this.imageUrl)
+      sessionStorage.setItem("imgUrl", this.imageUrl)
     },
     beforeAvatarUpload(file) {
       const isJPG = file.type === 'image/jpeg';
@@ -474,9 +476,11 @@ div {
   position: relative;
   overflow: hidden;
 }
+
 .avatar-uploader .el-upload:hover {
   border-color: #409EFF;
 }
+
 .avatar-uploader-icon {
   font-size: 28px;
   color: #8c939d;
@@ -485,6 +489,7 @@ div {
   line-height: 120px;
   text-align: center;
 }
+
 .avatar {
   width: 120px;
   height: 120px;

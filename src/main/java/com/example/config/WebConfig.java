@@ -12,7 +12,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")//设置允许跨域的路径
-                .allowedOrigins("http://localhost:8081")//设置允许跨域请求的域名
+                .allowedOrigins("http://localhost:8080")//设置允许跨域请求的域名
                 .allowedMethods("GET","POST","PUT","OPTIONS","DELETE","PATCH") //设置允许的方法
                 .maxAge(3600);//跨域允许时间
     }
