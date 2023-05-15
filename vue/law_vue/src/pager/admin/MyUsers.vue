@@ -1,5 +1,5 @@
 <template>
-  <div style="position:relative;">
+  <div class="box" style="position:relative;">
     <el-button type="primary" icon="el-icon-edit" round
                @click="addAdminBefore"
                style="position:fixed;
@@ -234,7 +234,7 @@ body {
   width: 100%;
 }
 
-div {
+.box {
   height: 100%;
   width: 100%;
   overflow-y: scroll;

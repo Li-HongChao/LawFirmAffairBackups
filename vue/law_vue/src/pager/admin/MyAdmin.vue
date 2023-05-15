@@ -146,6 +146,7 @@ export default {
 .box {
   height: 100%;
   width: 100%;
+  background: white;
 }
 
 .header {

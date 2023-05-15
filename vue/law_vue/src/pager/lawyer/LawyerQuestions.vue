@@ -8,14 +8,44 @@
 
         <div class="item item-center"><span>{{ item.time }}</span></div>
 
-        <div class="item item-left" v-if="item.role===1">
+        <div class="item item-left" v-if="item.role==1">
           <div class="avatar">
             <div class="el-icon-user-solid" style="font-size: 45px"/>
           </div>
           <div class="bubble bubble-left">{{ item.msg }}</div>
         </div>
 
-        <div class="item item-right" v-if="item.role===0">
+        <!--2表示律师图片-->
+        <div class="item item-left" v-if="item.role==3">
+          <div class="avatar">
+            <div class="el-icon-user-solid" style="font-size: 45px"/>
+          </div>
+          <div class="bubble bubble-left">
+            <el-image
+                style="width: 100px; height: 100px;display: inline"
+                :src="item.msg"
+                :fit="fit"
+                :preview-src-list="imgList">
+            </el-image>
+          </div>
+        </div>
+
+        <!--3表示用户图片-->
+        <div class="item item-right" v-if="item.role==2">
+          <div class="bubble bubble-right">
+            <el-image
+                style="width: 100px; height: 100px;display: inline"
+                :src="item.msg"
+                :fit="fit"
+                :preview-src-list="imgList">
+            </el-image>
+          </div>
+          <div class="avatar">
+            <div class="el-icon-user-solid" style="font-size: 45px"/>
+          </div>
+        </div>
+
+        <div class="item item-right" v-if="item.role==0">
           <div class="bubble bubble-right">{{ item.msg }}</div>
           <div class="avatar">
             <div class="el-icon-user-solid" style="font-size: 45px"/>
@@ -28,11 +58,17 @@
     <div class="input-area">
       <textarea v-model="msg"></textarea>
       <div class="button-area">
-        <el-upload style="margin:0 5px;">
+        <el-upload style="margin:0 5px;"
+                   class="avatar-uploader"
+                   action="http://localhost:8082/chat/upload"
+                   :show-file-list="false"
+                   :on-success="handleAvatarSuccess"
+                   :before-upload="beforeAvatarUpload">
           <el-button type="primary" icon="el-icon-picture-outline"
                      style="text-align: center;padding: 6px;height: 30px"></el-button>
         </el-upload>
-        <el-button type="success" icon="el-icon-check" style="text-align: center;padding: 6px;" @click="send"></el-button>
+        <el-button type="success" icon="el-icon-check" style="text-align: center;padding: 6px;"
+                   @click="send"></el-button>
       </div>
     </div>
   </div>
@@ -51,7 +87,11 @@ export default {
       nowTime: this.getNowDate(),
       //消息面板
       panel: [],
-      msg: ''
+      msg: '',
+      //图片地址
+      imgList: [],
+      imageUrl: null,
+      fit: "cover"
     }
   },
   created() {
@@ -81,14 +121,15 @@ export default {
 
         if (message.data == "*") {
           this.$message("对方不在线哦~")
-        }else {
+        } else {
           let msgs = message.data.split(`$`);
           let msg = {}
           msg.key = key++
           msg.msg = msgs[2]
           msg.time = this.getNowDate()
-          msg.role = 1
+          msg.role = msgs[3]
           this.panel.push(msg)
+          console.log(this.panel)
 
           this.$nextTick(() => {
             let msg = document.getElementById('content') // 获取对象
@@ -107,25 +148,38 @@ export default {
       }
     },
     send() {
-      //发送消息以$作为分隔符
-      socket.send(`${JSON.parse(sessionStorage.getItem("userInfo"))}$${this.$route.params.toName}$${this.msg}$${0}$${new Date}`)
-
-      let msg = {}
-      msg.key = key++
-      msg.msg = this.msg
-      msg.time = this.getNowDate()
-      msg.role = 0
-      this.panel.push(msg)
-
-      this.$nextTick(() => {
-        let msg = document.getElementById('content') // 获取对象
-        msg.scrollTop = msg.scrollHeight // 滚动高度
-      })
+        //判断发送面板是否为空
+        if (this.msg != "" || this.imageUrl != null) {
+          let msg = {}
+          msg.key = key++
+          msg.msg = this.msg
+          msg.time = this.getNowDate()
+          if (this.imageUrl != null) {
+            msg.role = 2
+            msg.msg = this.imageUrl
+          } else {
+            msg.role = 0
+          }
+          //发送消息以$作为分隔符
+          socket.send(`${JSON.parse(sessionStorage.getItem("userInfo"))}$${this.$route.params.toName}$${this.msg}$${msg.role}$${new Date}`)
+          //放入面板-回显
+          this.panel.push(msg)
+          //无论怎么样，最后应该清空容器，防止下一次误判
+          this.imageUrl = null
+          //聊天页面自动滚动
+          this.$nextTick(() => {
+            let msg = document.getElementById('content') // 获取对象
+            msg.scrollTop = msg.scrollHeight // 滚动高度
+          })
+        } else {
+          this.$message.info("消息为空")
+      }
 
       //清空面板
       this.msg = ""
       console.log(this.panel)
     },
+
     getNowDate() {
       var myDate = new Date;
       var year = myDate.getFullYear(); //获取当前年
@@ -136,6 +190,29 @@ export default {
       var seconds = myDate.getSeconds(); //获取当前秒
       var now = year + "-" + mon + "-" + date + " " + hours + ":" + minutes + ":" + seconds;
       return now;
+    },
+    //图片回显，获取已经保存之后的文件路径
+    handleAvatarSuccess(res) {
+      let url = res.data.split(`***`);
+      //回显图片时候使用虚拟地址
+      this.imageUrl = "http://localhost:8082/image/" + url[1]
+      //发送消息时候发送真实地址
+      this.msg= res.data;
+      //将虚拟地址放入列表方便查看
+      this.imgList.push(this.imageUrl)
+      this.send();
+    },
+    //判断格式，大小
+    beforeAvatarUpload(file) {
+      const isJPG = file.type === 'image/jpeg';
+      const isLt2M = file.size / 1024 / 1024 < 2;
+      if (!isJPG) {
+        this.$message.error('上传头像图片只能是 JPG 格式!');
+      }
+      if (!isLt2M) {
+        this.$message.error('上传头像图片大小不能超过 2MB!');
+      }
+      return isJPG && isLt2M;
     }
   }
 }

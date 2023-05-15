@@ -159,6 +159,7 @@ export default {
           if (res.data.code === 1) {
             this.$message.success("注册成功！请等待管理员审核完毕");
             this.addAdmin = false
+            this.$router.push('/')
           } else {
             alert("您输入的用户名已存在！");
           }

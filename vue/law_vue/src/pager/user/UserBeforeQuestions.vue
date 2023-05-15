@@ -5,7 +5,7 @@
           :data="orderList"
           style="width: 100%">
 
-<!--        1-->
+        <!--        1-->
         <el-table-column
             label="咨询人"
             width="180">
@@ -15,7 +15,7 @@
           </template>
         </el-table-column>
 
-<!--        2-->
+        <!--        2-->
         <el-table-column label="操作" align="right">
           <template slot-scope="scope">
             <el-button size="mini" type="primary" @click="toMsg(scope.row)">开始咨询</el-button>
@@ -27,9 +27,19 @@
 
     <el-dialog :visible.sync="dialogVisible" width="70%">
       <el-button type="warning" @click="downloadFile">下载到本地</el-button>
+
+      <div style="margin: 50px 0">
+        <el-radio-group v-model="select">
+          <el-radio :label="1" style="margin: 20px;">全部</el-radio>
+          <i v-for="item in nameList" :key="item.toName">
+            <el-radio style="margin: 20px;" :label="item.toName" v-if="item.toName!==userName">{{item.toName}}</el-radio>
+          </i>
+        </el-radio-group>
+      </div>
+
       <el-table
           :data="chat"
-          :default-sort = "{prop: 'date', order: 'descending'}">
+          :default-sort="{prop: 'date', order: 'descending'}">
         <el-table-column>
           <template slot-scope="scope">
             <el-tag size="medium">发送人：</el-tag>
@@ -50,9 +60,9 @@
           </template>
         </el-table-column>
 
-        <el-table-column label="时间"  sortable prop="date">
+        <el-table-column label="时间" sortable prop="date">
           <template slot-scope="scope">
-           {{ scope.row.time }}
+            {{ scope.row.time }}
           </template>
         </el-table-column>
       </el-table>
@@ -69,22 +79,27 @@ export default {
   name: "LawyerBeforeQuestions",
   data() {
     return {
+      userName:JSON.parse(sessionStorage.getItem('userInfo')),
       orderList: [],
       chat: [],
-      dialogVisible: false
+      nameList:[],
+      dialogVisible: false,
+      select:1
     }
   },
   methods: {
     getAll() {
-      //查看是否有为整理的订单
-      axios.get("/order/user?username=" + JSON.parse(sessionStorage.getItem('userInfo'))).then((res) => {
+      //查看是否有未咨询的订单
+      axios.get("/order/user?username=" + this.userName).then((res) => {
         this.orderList = res.data.data
         console.log("订单" + this.orderList)
       })
 
-      axios.get("/chat?username=" + JSON.parse(sessionStorage.getItem('userInfo'))).then((res) => {
+      axios.get("/chat?username=" + this.userName).then((res) => {
         this.chat = res.data.data
         console.log("聊天记录" + this.chat)
+        const map = new Map()
+        this.nameList=this.chat.filter((item) => !map.has(item.toName) && map.set(item.toName, 1))
       })
     },
     toMsg(data) {
@@ -94,14 +109,29 @@ export default {
       this.dialogVisible = true
     },
     downloadFile() {
-      let data =""
+      if (this.select!==1){
+        axios.get("/chat/user?username="+this.userName+"&lawyerName="+this.select).then((res)=>{
+          this.chat = res.data.data
+          this.save()
+        })
+      }else if (this.select===1){
+        axios.get("/chat?username=" + this.userName).then((res) => {
+          this.chat = res.data.data
+          console.log("选择了全部："+res.data.data)
+          this.save()
+        })
+      }
+    },
+    save(){
+      console.log(this.chat)
+      let data = ""
       for (const chatKey in this.chat) {
-        data=data+`\n${this.chat[chatKey].time}\t| 发送人：${this.chat[chatKey].fromName}\t| 接收人：${this.chat[chatKey].toName}\t| 发送消息：”${this.chat[chatKey].msg}“\n`
+        data = data + `\n${this.chat[chatKey].time}\t| 发送人：${this.chat[chatKey].fromName}\t| 接收人：${this.chat[chatKey].toName}\t| 发送消息：”${this.chat[chatKey].msg}“\n`
       }
       let content = new Blob([data], {type: 'text/plain;charset=utf-8'});
       let name = new Date().getTime()
       saveAs(content, `${name}.txt`);
-    },
+    }
 
 
   },

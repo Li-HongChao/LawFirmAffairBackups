@@ -34,7 +34,6 @@ export default{
         },
         //y轴数据标记
         yAxis: {},
-
         //数据可视化
         series: [{
           name: '预约总量',

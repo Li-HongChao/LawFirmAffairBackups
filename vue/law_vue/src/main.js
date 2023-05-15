@@ -9,9 +9,11 @@ import 'default-passive-events'
 import axios from "axios";
 
 
+Vue.prototype.$axios = axios
+//设置基址
+axios.defaults.baseURL='http://localhost:8082';
 Vue.use(ElementUI);
 Vue.config.productionTip = false
-axios.defaults.withCredentials = true;
 new Vue({
   router,
   store,

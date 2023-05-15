@@ -1,4 +1,4 @@
-package com.example.common;
+package com.example.until;
 
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 public class GetBeanUtils implements ApplicationContextAware {
  
     protected static ApplicationContext applicationContext;
- 
+
     @Override
     public void setApplicationContext(ApplicationContext app) throws BeansException {
         if (applicationContext == null) {

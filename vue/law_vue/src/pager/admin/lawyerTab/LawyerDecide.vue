@@ -96,6 +96,7 @@ export default {
         })
       })
     },
+    //通过审核
     alertAdmins(row) {
       row.status=1
       axios.put("/update/lawyer",row ).then(res => {

@@ -1,5 +1,5 @@
 <template>
-  <div style="position:relative;">
+  <div class="box" style="position:relative;">
 
     <el-button type="primary" icon="el-icon-edit" round
                @click="addLegalBefore"
@@ -39,9 +39,18 @@
 
           <el-col :span="12">
 
-            <el-form-item label="图片" prop="imageUrl">
+            <el-form-item>
 
-              <el-input v-model="form.imageUrl"/>
+              <el-upload
+                  class="avatar-uploader"
+                  action="http://localhost:8082/legal/upload"
+                  :show-file-list="false"
+                  :on-success="handleAvatarSuccess"
+                  :before-upload="beforeAvatarUpload">
+                <img v-if="imageUrl!=''" :src="imageUrl" class="avatar">
+                <i v-else class="el-icon-plus avatar-uploader-icon"
+                   style="font-size: 20px;border: #a1a1a1 solid 1px;border-radius: 10px">上传图片</i>
+              </el-upload>
 
             </el-form-item>
 
@@ -102,9 +111,19 @@
 
           <el-col :span="12">
 
-            <el-form-item label="图片" prop="imageUrl">
+            <el-form-item label="图片">
 
-              <el-input v-model="form.imageUrl"/>
+              <el-upload
+                  class="avatar-uploader"
+                  action="http://localhost:8082/legal/upload"
+                  :show-file-list="false"
+                  :on-success="handleAvatarSuccess"
+                  :before-upload="beforeAvatarUpload">
+                <img v-if="imageUrl!=''" :src="imageUrl" class="avatar">
+                <i v-else class="el-icon-plus avatar-uploader-icon"
+                   style="font-size: 20px;border: #a1a1a1 solid 1px;border-radius: 10px">上传图片</i>
+              </el-upload>
+
 
             </el-form-item>
 
@@ -162,7 +181,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="图片链接" align="center" show-overflow-tooltip="show-overflow-tooltip"  :preview-src-list="srcList" width="100px">
+      <el-table-column label="图片链接" align="center" show-overflow-tooltip="show-overflow-tooltip"  width="100px">
 
         <template slot-scope="scope">
           <el-popover
@@ -221,11 +240,11 @@ export default {
           pattern: /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w-]+)+[\w\-_~:/?#[\]@!&',;=.]+$/,
           required: true,
           message: '收费标准为必填项',
-          trigger: 'blur'
-        }]
+          trigger: 'blur'}]
       },
       alterRole: false,
       addLegal: false,
+      imageUrl: '',
     }
   },
   methods: {
@@ -235,6 +254,7 @@ export default {
       axios.get("/legal/select?id=" + row.id).then(((res) => {
         if (res.data.code === 1) {
           //修改第一个调用的先是查询
+          this.form.imageUrl = row.imgUrl
           this.form = res.data.data
         } else {
           this.$message.error(res.data.msg)
@@ -245,6 +265,7 @@ export default {
       if (!this.checkForm()) {
         this.$message.error('请完善表单相关信息！');
       } else {
+        this.form.imageUrl = this.imageUrl
         axios.put("/legal", this.form).then(res => {
           if (res.data.code == 1) {
             this.$message.success("修改成功！");
@@ -253,6 +274,7 @@ export default {
           }
         }).finally(() => {
           this.getAll()
+          this.alterRole = false
         });
       }
     },
@@ -261,7 +283,8 @@ export default {
       this.$confirm("此操作删除不可恢复，是否继续", "警告", {
         type: 'info'
       }).then(() => {
-        axios.delete(`/legal/select?id=` + row.id).then(((res) => {
+        console.log("已经执行")
+        axios.delete(`/legal?id=` + row.id).then(((res) => {
           if (res.data.code == 1) {
             this.$message.success("删除成功！");
           } else {
@@ -292,11 +315,13 @@ export default {
       }
       this.addLegal = true
     },
+
     //新增
     addLegals() {
       if (!this.checkForm()) {
         this.$message.error('请完善表单相关信息！');
       } else {
+        this.form.imageUrl = this.imageUrl
         axios.post("/legal", this.form).then(res => {
           if (res.data.code === 1) {
             this.$message.success("注册成功！");
@@ -317,7 +342,25 @@ export default {
         validForm = valid
       })
       return validForm;
-    }
+    },
+    //图片回显
+    handleAvatarSuccess(res) {
+      this.imageUrl = "http://localhost:8082/image/" + res.data
+      console.log(this.imageUrl)
+      sessionStorage.setItem("imgUrl", this.imageUrl)
+    },
+    beforeAvatarUpload(file) {
+      const isJPG = file.type === 'image/jpeg';
+      const isLt2M = file.size / 1024 / 1024 < 2;
+
+      if (!isJPG) {
+        this.$message.error('上传头像图片只能是 JPG 格式!');
+      }
+      if (!isLt2M) {
+        this.$message.error('上传头像图片大小不能超过 2MB!');
+      }
+      return isJPG && isLt2M;
+    },
   },
   created() {
     this.getAll()
@@ -331,7 +374,7 @@ body {
   width: 100%;
 }
 
-div {
+.box {
   height: 100%;
   width: 100%;
   overflow-y: scroll;
@@ -339,6 +382,34 @@ div {
 
 ::-webkit-scrollbar {
   display: none;
+}
+
+
+.avatar-uploader .el-upload {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.avatar-uploader .el-upload:hover {
+  border-color: #409EFF;
+}
+
+.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 120px;
+  height: 120px;
+  line-height: 120px;
+  text-align: center;
+}
+
+.avatar {
+  width: 120px;
+  height: 120px;
+  display: block;
 }
 
 </style>

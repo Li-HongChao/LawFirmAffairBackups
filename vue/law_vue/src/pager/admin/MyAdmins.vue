@@ -1,5 +1,5 @@
 <template>
-  <div style="position:relative;">
+  <div class="box" style="position:relative;">
     <el-button type="primary" icon="el-icon-edit" round
                @click="addAdmin = true"
                style="position:fixed;
@@ -9,7 +9,7 @@
     </el-button>
     <el-dialog title="新增管理员" :visible.sync="addAdmin" width="50%">
       <el-form :model="form" :rules="rules" ref="form">
-        <el-form-item label="管理员姓名" :label-width="formLabelWidth" prop="name">
+        <el-form-item label="管理员姓名" :label-width="formLabelWidth" prop="username">
           <el-input v-model="form.username" autocomplete="off" placeholder="请输入管理员姓名"></el-input>
         </el-form-item>
         <el-form-item label="密码" :label-width="formLabelWidth" prop="password">
@@ -24,7 +24,7 @@
 
     <el-dialog title="修改管理员信息" :visible.sync="alterAdmin" width="50%">
       <el-form :model="form" :rules="rules" ref="form">
-        <el-form-item label="管理员姓名" :label-width="formLabelWidth" prop="name">
+        <el-form-item label="管理员姓名" :label-width="formLabelWidth" prop="username">
           <el-input v-model="form.username" autocomplete="off" placeholder="请输入管理员姓名"></el-input>
         </el-form-item>
         <el-form-item label="密码" :label-width="formLabelWidth" prop="password">
@@ -95,7 +95,7 @@ export default {
       formLabelWidth: '120px',
       rules: {//校验规则
         phone: [{pattern: /^1[3456789]\d{9}$/, required: true, message: '请检查格式', trigger: 'blur'}],
-        name: [{max: 8, required: true, message: '需要汉字哦~', trigger: 'blur'}],
+        username: [{ required: true, message: '请填写姓名', trigger: 'blur'}],
         area: [{required: true, message: '擅长领域为必填项', trigger: 'blur'}],
         password: [{min: 6, max: 12, required: true, message: '密码为必填项,最短长度为6，最长为12奥~', trigger: 'blur'}],
         rating: [{pattern: /^[0-9]$/, required: true, message: '必填项，最大为9', trigger: 'blur'}],
@@ -195,7 +195,7 @@ body {
   width: 100%;
 }
 
-div {
+.box {
   height: 100%;
   width: 100%;
   overflow-y: scroll;

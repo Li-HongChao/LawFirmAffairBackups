@@ -1,7 +1,7 @@
 package com.example.controller.account;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.example.common.R;
+import com.example.until.R;
 import com.example.entity.Admin;
 import com.example.entity.Lawyer;
 import com.example.entity.Role;

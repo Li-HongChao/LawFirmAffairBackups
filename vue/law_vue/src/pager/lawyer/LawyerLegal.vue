@@ -31,9 +31,18 @@
 
           <el-col :span="12">
 
-            <el-form-item label="图片" prop="imageUrl">
+            <el-form-item label="图片">
 
-              <el-input v-model="form.imageUrl"/>
+              <el-upload
+                  class="avatar-uploader"
+                  action="http://localhost:8082/legal/upload"
+                  :show-file-list="false"
+                  :on-success="handleAvatarSuccess"
+                  :before-upload="beforeAvatarUpload">
+                <img v-if="imageUrl!=''" :src="imageUrl" class="avatar">
+                <i v-else class="el-icon-plus avatar-uploader-icon"
+                   style="font-size: 20px;border: #a1a1a1 solid 1px;border-radius: 10px">上传图片</i>
+              </el-upload>
 
             </el-form-item>
 
@@ -75,7 +84,7 @@ export default {
         time: "",
         title: '',
         content: '',
-        imageUrl: ''
+        imageUrl: '',
       },
       rules: {//校验规则
         author: [{max: 8, min: 1, required: true, message: '长度最大为8，最小为1', trigger: 'blur'}],
@@ -89,6 +98,7 @@ export default {
           trigger: 'blur'
         }]
       },
+      imageUrl: '',
     }
   },
   methods: {
@@ -109,10 +119,14 @@ export default {
       if (!this.checkForm()) {
         this.$message.error('请完善表单相关信息！');
       } else {
+        this.form.imageUrl = this.imageUrl
         axios.post("/legal", this.form).then(res => {
           if (res.data.code === 1) {
-            this.$message.success("新增成功！继续添加，或者去首页查看？");
-            this.addLegalBefore()
+            this.$message.success("新增成功！");
+            this.addLegal = false
+            this.$router.push("/lawyerIndex")
+          } else {
+            alert("您输入的用户名已存在！");
           }
         }).finally(() => {
           this.getAll()
@@ -127,7 +141,24 @@ export default {
         validForm = valid
       })
       return validForm;
-    }
+    },
+    //图片回显
+    handleAvatarSuccess(res) {
+      this.imageUrl = "http://localhost:8082/image/" + res.data
+      console.log(this.imageUrl)
+    },
+    beforeAvatarUpload(file) {
+      const isJPG = file.type === 'image/jpeg';
+      const isLt2M = file.size / 1024 / 1024 < 2;
+
+      if (!isJPG) {
+        this.$message.error('上传头像图片只能是 JPG 格式!');
+      }
+      if (!isLt2M) {
+        this.$message.error('上传头像图片大小不能超过 2MB!');
+      }
+      return isJPG && isLt2M;
+    },
   },
   created() {
     this.getAll()
@@ -146,5 +177,31 @@ div {
   width: 100%;
 }
 
+.avatar-uploader .el-upload {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.avatar-uploader .el-upload:hover {
+  border-color: #409EFF;
+}
+
+.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 120px;
+  height: 120px;
+  line-height: 120px;
+  text-align: center;
+}
+
+.avatar {
+  width: 120px;
+  height: 120px;
+  display: block;
+}
 
 </style>

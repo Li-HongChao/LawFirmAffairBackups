@@ -2,7 +2,7 @@ package com.example.controller.account;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.example.common.R;
+import com.example.until.R;
 import com.example.entity.Admin;
 import com.example.entity.Lawyer;
 import com.example.entity.Role;
@@ -14,7 +14,6 @@ import com.example.service.impl.UserServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Date;
 
@@ -48,8 +46,6 @@ public class RegisterController {
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(User::getName, user.getName());
         User one = userService.getOne(queryWrapper);
-
-
 
         if (one != null && roleIsNull(user.getName())) {
             return R.error("该用户已存在");
@@ -118,7 +114,7 @@ public class RegisterController {
     }
 
 
-    @Value("${myPath.iconPath}")
+    @Value("${myPath}")
     private String path;
 
     //图片上传

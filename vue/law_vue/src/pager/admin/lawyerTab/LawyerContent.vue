@@ -1,5 +1,5 @@
 <template>
-  <div style="z-index: 66">
+  <div class="box" style="z-index: 66">
     <el-button type="primary" icon="el-icon-edit" round
                @click="addAdminBefore"
                style="position:fixed;
@@ -22,7 +22,8 @@
               :on-success="handleAvatarSuccess"
               :before-upload="beforeAvatarUpload">
             <img v-if="imageUrl!=''" :src="imageUrl" class="avatar">
-            <i v-else class="el-icon-plus avatar-uploader-icon">上传图片</i>
+            <i v-else class="el-icon-plus avatar-uploader-icon"
+               style="font-size: 20px;border: #a1a1a1 solid 1px;border-radius: 10px">上传图片</i>
           </el-upload>
         </el-form-item>
 
@@ -136,7 +137,8 @@
               :on-success="handleAvatarSuccess"
               :before-upload="beforeAvatarUpload">
             <img v-if="imageUrl!=''" :src="imageUrl" class="avatar">
-            <i v-else class="el-icon-plus avatar-uploader-icon">上传图片</i>
+            <i v-else class="el-icon-plus avatar-uploader-icon"
+               style="font-size: 20px;border: #a1a1a1 solid 1px;border-radius: 10px">上传图片</i>
           </el-upload>
         </el-form-item>
 
@@ -393,6 +395,7 @@ export default {
         }).finally(() => {
           this.alterAdmin = false
           this.form.imgUrl = ""
+          this.getAll()
         });
       }
     },
@@ -459,7 +462,7 @@ body {
   width: 100%;
 }
 
-div {
+.box {
   height: 100%;
   width: 100%;
   overflow-y: scroll;

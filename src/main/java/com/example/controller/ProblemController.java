@@ -1,6 +1,6 @@
 package com.example.controller;
 
-import com.example.common.R;
+import com.example.until.R;
 import com.example.entity.Problem;
 import com.example.service.impl.ProblemServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;

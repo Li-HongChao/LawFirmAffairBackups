@@ -1,14 +1,18 @@
 package com.example.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.example.common.R;
-import com.example.entity.Lawyer;
+import com.example.until.R;
 import com.example.entity.Legal;
 import com.example.service.impl.LegalServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -78,5 +82,25 @@ public class LegalController {
             legals = legals.subList(0,5);
         }
         return R.success(legals);
+    }
+
+    @Value("${myPath}")
+    private String path;
+    //图片上传
+    @PostMapping("/upload")
+    public R<String> upload(MultipartFile file) {
+        long time = new Date().getTime();
+        String url =path +"news\\"+ time + ".jpg";
+        File dest = new File(url);
+        if (!dest.getParentFile().exists()) {
+            dest.getParentFile().mkdirs();
+        }
+        try {
+            file.transferTo(dest);
+            log.info("当前文件已经存储:"+url);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return R.success("news\\"+ time + ".jpg");
     }
 }
