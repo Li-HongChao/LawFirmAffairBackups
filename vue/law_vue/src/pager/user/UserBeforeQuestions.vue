@@ -26,7 +26,8 @@
     </el-card>
 
     <el-dialog :visible.sync="dialogVisible" width="70%">
-      <el-button type="warning" @click="downloadFile">下载到本地</el-button>
+      <el-button type="warning" @click="downloadFile" style="display: inline-block">下载到本地</el-button>
+      <el-button type="primary" @click="historyView" style="display: inline-block">新页面查看</el-button>
 
       <div style="margin: 50px 0">
         <el-radio-group v-model="select">
@@ -131,9 +132,10 @@ export default {
       let content = new Blob([data], {type: 'text/plain;charset=utf-8'});
       let name = new Date().getTime()
       saveAs(content, `${name}.txt`);
+    },
+    historyView(){
+      router.push("/historyChat/" + this.select)
     }
-
-
   },
   created() {
     this.getAll()

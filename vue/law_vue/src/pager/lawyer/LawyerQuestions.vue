@@ -197,7 +197,7 @@ export default {
       //回显图片时候使用虚拟地址
       this.imageUrl = "http://localhost:8082/image/" + url[1]
       //发送消息时候发送真实地址
-      this.msg= res.data;
+      this.msg= "http://localhost:8082/image/***" + url[1];
       //将虚拟地址放入列表方便查看
       this.imgList.push(this.imageUrl)
       this.send();

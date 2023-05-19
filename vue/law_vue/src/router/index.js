@@ -16,6 +16,7 @@ import MyProblem from "@/pager/admin/MyProblem";
 import LawyerContent from "@/pager/admin/lawyerTab/LawyerContent";
 import LawyerDecide from "@/pager/admin/lawyerTab/LawyerDecide";
 import LawyerSort from "@/pager/admin/lawyerTab/LawyerSort";
+import HistoryChat from "@/pager/user/HistoryChat";
 
 //用户页面
 import UserNews from "@/pager/user/UserNews";
@@ -157,7 +158,12 @@ const routes = [
                 path: "/lawyerLegals",
                 component: LawyerLegal,
                 name: 'lawyerLegals'
-            }
+            },
+            {
+                path: "/historyChat/:toName",
+                component: HistoryChat,
+                name: 'historyChat'
+            },
         ]
     }
 ]
